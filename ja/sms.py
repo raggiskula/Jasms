@@ -1,6 +1,10 @@
+import os
+import sys
+import getopt
 import urllib
 import urllib2
 import re
+import logging
 from suds.client import Client
 
 def senda_sms(number, message):
@@ -39,5 +43,48 @@ def senda_sms(number, message):
         'max25security': max_sec}        
     f = o.open(URL, urllib.urlencode(params))
 
+def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hn:m:v")
+    except getopt.GetoptError, err:
+        # print help information and exit:
+        print str(err) # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+    phonenumber = ""
+    message = ""
+    for o, a in opts:
+        if o == "-v":
+            logging.basicConfig(level=logging.INFO)
+            logging.getLogger('suds.client').setLevel(logging.DEBUG)
+        elif o in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif o in ("-n", "--number"):
+            phonenumber = a
+        elif o in ("-m", "--message"):
+            message = a
+    if(phonenumber == "" or message == ""):
+        usage()
+        sys.exit(2)
+    senda_sms(phonenumber, message)
+
+def usage():
+    print '''
+    Usage: sms.py -n phonenumber -m message
+
+    Options:
+    -h, --help
+        Displays this message
+
+    -n, --number
+        Phonenumber to send to
+
+    -m, --message
+        sms message to send (max 100 char)
+    -v
+        Verbose
+    '''
+
 if __name__ == "__main__":
-    senda_sms("7775333", "hi")
+    main()
