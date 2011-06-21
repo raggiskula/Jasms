@@ -1,10 +1,16 @@
 import urllib
 import urllib2
 import re
-
+from suds.client import Client
 
 def senda_sms(number, message):
     """docstring for senda_sms"""
+    nova_soap = "http://www.nova.is/services/SupportService.asmx?wsdl"
+    client = Client(nova_soap)
+    result = client.service.sendSMS(number,message)
+    if result.returnCode == 0:
+        return
+
     URL = 'http://ja.is/sms/'
     o = urllib2.build_opener( urllib2.HTTPCookieProcessor() )
     urllib2.install_opener(o)
@@ -33,3 +39,5 @@ def senda_sms(number, message):
         'max25security': max_sec}        
     f = o.open(URL, urllib.urlencode(params))
 
+if __name__ == "__main__":
+    senda_sms("7775333", "hi")
